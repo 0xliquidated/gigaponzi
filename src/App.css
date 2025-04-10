@@ -204,3 +204,40 @@ button:hover {
   color: #AAAAAA;
   margin-bottom: 20px;
 }
+
+/* Existing styles remain unchanged, only showing updated/additional styles */
+.diamond-staking-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 50px; /* Increased from 30px to 50px for more padding */
+}
+
+.diamond-staking-card {
+  width: 100%;
+  max-width: 600px;
+  text-align: center; /* Center all text and inline elements */
+}
+
+/* Center button groups and percentage buttons */
+.diamond-staking-card .button-group,
+.diamond-staking-card .percentage-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Ensure stats are centered */
+.diamond-staking-card .stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Center input */
+.diamond-staking-card input {
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
+}
