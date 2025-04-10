@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import Header from './components/Header';
 import Staking from './components/Staking';
@@ -14,6 +14,81 @@ function App() {
   const [account, setAccount] = useState(null);
   const [contracts, setContracts] = useState({});
 
+  // Initialize wallet connection on page load
+  useEffect(() => {
+    const initWallet = async () => {
+      if (window.ethereum) {
+        try {
+          const provider = new ethers.providers.Web3Provider(window.ethereum);
+          const accounts = await provider.listAccounts(); // Check if MetaMask has an account
+          if (accounts.length > 0) {
+            await checkAndSwitchNetwork(provider);
+            const signer = provider.getSigner();
+            const address = await signer.getAddress();
+            setProvider(provider);
+            setSigner(signer);
+            setAccount(address);
+
+            const contractInstances = {};
+            for (const [name, { address, abi }] of Object.entries(CONTRACTS)) {
+              console.log(`Initializing ${name} at ${address}`);
+              contractInstances[name] = new ethers.Contract(address, abi, signer);
+            }
+            setContracts(contractInstances);
+            console.log("Contracts initialized:", contractInstances);
+          }
+        } catch (error) {
+          console.error("Failed to initialize wallet on load:", error);
+        }
+      }
+    };
+
+    initWallet();
+
+    // Listen for account or network changes
+    if (window.ethereum) {
+      window.ethereum.on('accountsChanged', (accounts) => {
+        if (accounts.length === 0) {
+          disconnectWallet();
+        } else {
+          connectWallet();
+        }
+      });
+      window.ethereum.on('chainChanged', () => {
+        window.location.reload(); // Reload to recheck network
+      });
+    }
+
+    // Cleanup listeners
+    return () => {
+      if (window.ethereum) {
+        window.ethereum.removeListener('accountsChanged', disconnectWallet);
+        window.ethereum.removeListener('chainChanged', () => window.location.reload());
+      }
+    };
+  }, []);
+
+  const checkAndSwitchNetwork = async (provider) => {
+    const network = await provider.getNetwork();
+    if (network.chainId !== parseInt(NETWORK.chainId, 16)) {
+      try {
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: NETWORK.chainId }],
+        });
+      } catch (switchError) {
+        if (switchError.code === 4902) {
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [NETWORK],
+          });
+        } else {
+          throw switchError;
+        }
+      }
+    }
+  };
+
   const connectWallet = async () => {
     try {
       if (!window.ethereum) {
@@ -24,10 +99,7 @@ function App() {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       await provider.send("eth_requestAccounts", []);
       console.log("Accounts connected, switching network...");
-      await window.ethereum.request({
-        method: 'wallet_addEthereumChain',
-        params: [NETWORK]
-      });
+      await checkAndSwitchNetwork(provider);
       console.log("Network switched, getting signer...");
       const signer = provider.getSigner();
       const address = await signer.getAddress();
