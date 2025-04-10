@@ -17,7 +17,7 @@ function Swap({ contracts, account }) {
     try {
       const dust = await contracts.MonDust.balanceOf(account);
       const gems = await contracts.MonGems.balanceOf(account);
-      console.log("MDUST balance:", ethers.utils.formatEther(dust), "MGEM balance:", ethers.utils.formatEther(gems));
+      console.log("🧹 MDUST balance:", ethers.utils.formatEther(dust), "⛏️ MGEM balance:", ethers.utils.formatEther(gems));
       setDustBalance(ethers.utils.formatEther(dust));
       setGemBalance(ethers.utils.formatEther(gems));
     } catch (error) {
@@ -43,15 +43,15 @@ function Swap({ contracts, account }) {
   };
 
   const approveDust = async (amount) => {
-    console.log("Approving MDUST:", ethers.utils.formatEther(amount));
+    console.log("Approving 🧹 MDUST:", ethers.utils.formatEther(amount));
     const approveTx = await contracts.MonDust.approve(contracts.SwapHelper.address, amount);
     console.log("Approve tx hash:", approveTx.hash);
     await approveTx.wait();
-    console.log("MDUST approval confirmed");
+    console.log("🧹 MDUST approval confirmed");
   };
 
   const swapDustToGems = async (amount) => {
-    console.log("Swapping MDUST to MGEM...");
+    console.log("Swapping 🧹 MDUST to ⛏️ MGEM...");
     const swapTx = await contracts.SwapHelper.swapDustForGems(amount, 0, { gasLimit: 300000 });
     console.log("Swap tx hash:", swapTx.hash);
     await swapTx.wait();
@@ -66,28 +66,28 @@ function Swap({ contracts, account }) {
       if (!hasAllowance) {
         await approveDust(amount);
       } else {
-        console.log("Allowance already sufficient for MDUST");
+        console.log("Allowance already sufficient for 🧹 MDUST");
       }
 
       await swapDustToGems(amount);
       setDustAmount('');
       updateBalances();
     } catch (error) {
-      console.error("Swap to MGEM failed:", error.message, error);
-      alert(`Swap to MGEM failed: ${error.message}. Check console.`);
+      console.error("Swap to ⛏️ MGEM failed:", error.message, error);
+      alert(`Swap to ⛏️ MGEM failed: ${error.message}. Check console.`);
     }
   };
 
   const approveGems = async (amount) => {
-    console.log("Approving MGEM:", ethers.utils.formatEther(amount));
+    console.log("Approving ⛏️ MGEM:", ethers.utils.formatEther(amount));
     const approveTx = await contracts.MonGems.approve(contracts.SwapHelper.address, amount);
     console.log("Approve tx hash:", approveTx.hash);
     await approveTx.wait();
-    console.log("MGEM approval confirmed");
+    console.log("⛏️ MGEM approval confirmed");
   };
 
   const swapGemsToDust = async (amount) => {
-    console.log("Swapping MGEM to MDUST...");
+    console.log("Swapping ⛏️ MGEM to 🧹 MDUST...");
     const swapTx = await contracts.SwapHelper.swapGemsForDust(amount, 0, { gasLimit: 300000 });
     console.log("Swap tx hash:", swapTx.hash);
     await swapTx.wait();
@@ -102,15 +102,15 @@ function Swap({ contracts, account }) {
       if (!hasAllowance) {
         await approveGems(amount);
       } else {
-        console.log("Allowance already sufficient for MGEM");
+        console.log("Allowance already sufficient for ⛏️ MGEM");
       }
 
       await swapGemsToDust(amount);
       setGemAmount('');
       updateBalances();
     } catch (error) {
-      console.error("Swap to MDUST failed:", error.message, error);
-      alert(`Swap to MDUST failed: ${error.message}. Check console.`);
+      console.error("Swap to 🧹 MDUST failed:", error.message, error);
+      alert(`Swap to 🧹 MDUST failed: ${error.message}. Check console.`);
     }
   };
 
@@ -118,36 +118,36 @@ function Swap({ contracts, account }) {
     <div className="card">
       <h2>Swap</h2>
       <div className="stats">
-        <p>MDUST Balance: {parseFloat(dustBalance).toFixed(2)}</p>
-        <p>MGEM Balance: {parseFloat(gemBalance).toFixed(2)}</p>
+        <p>🧹 MDUST Balance: {parseFloat(dustBalance).toFixed(2)}</p>
+        <p>⛏️ MGEM Balance: {parseFloat(gemBalance).toFixed(2)}</p>
       </div>
       <div className="swap-section">
         <input
           type="number"
           value={dustAmount}
           onChange={(e) => setDustAmount(e.target.value)}
-          placeholder="MDUST Amount"
+          placeholder="🧹 MDUST Amount"
         />
         <div className="percentage-buttons">
           <button onClick={() => setDustPercentage(25)}>25%</button>
           <button onClick={() => setDustPercentage(50)}>50%</button>
           <button onClick={() => setDustPercentage(100)}>100%</button>
         </div>
-        <button onClick={approveAndSwapDust}>Swap to MGEM</button>
+        <button onClick={approveAndSwapDust}>Swap to ⛏️ MGEM</button>
       </div>
       <div className="swap-section">
         <input
           type="number"
           value={gemAmount}
           onChange={(e) => setGemAmount(e.target.value)}
-          placeholder="MGEM Amount"
+          placeholder="⛏️ MGEM Amount"
         />
         <div className="percentage-buttons">
           <button onClick={() => setGemPercentage(25)}>25%</button>
           <button onClick={() => setGemPercentage(50)}>50%</button>
           <button onClick={() => setGemPercentage(100)}>100%</button>
         </div>
-        <button onClick={approveAndSwapGems}>Swap to MDUST</button>
+        <button onClick={approveAndSwapGems}>Swap to 🧹 MDUST</button>
       </div>
     </div>
   );
