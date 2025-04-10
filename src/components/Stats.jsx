@@ -2,24 +2,30 @@ import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 
 function Stats({ contracts, account }) {
-  const [balances, setBalances] = useState({ mon: '0', dust: '0', gems: '0' });
+  const [balances, setBalances] = useState({ mon: '0', dust: '0', gems: '0', diamond: '0' });
 
   useEffect(() => {
-    if (contracts.MonDust) {
+    if (contracts.MonDust && contracts.MonGems && contracts.MonDiamond) {
       updateBalances();
     }
   }, [contracts]);
 
   const updateBalances = async () => {
-    const provider = contracts.MonDust.provider;
-    const mon = await provider.getBalance(account);
-    const dust = await contracts.MonDust.balanceOf(account);
-    const gems = await contracts.MonGems.balanceOf(account);
-    setBalances({
-      mon: ethers.utils.formatEther(mon),
-      dust: ethers.utils.formatEther(dust),
-      gems: ethers.utils.formatEther(gems)
-    });
+    try {
+      const provider = contracts.MonDust.provider;
+      const mon = await provider.getBalance(account);
+      const dust = await contracts.MonDust.balanceOf(account);
+      const gems = await contracts.MonGems.balanceOf(account);
+      const diamond = await contracts.MonDiamond.balanceOf(account);
+      setBalances({
+        mon: ethers.utils.formatEther(mon),
+        dust: ethers.utils.formatEther(dust),
+        gems: ethers.utils.formatEther(gems),
+        diamond: ethers.utils.formatEther(diamond)
+      });
+    } catch (error) {
+      console.error("Stats update failed:", error);
+    }
   };
 
   return (
@@ -29,6 +35,7 @@ function Stats({ contracts, account }) {
         <div>MON: {parseFloat(balances.mon).toFixed(2)}</div>
         <div>MDUST: {parseFloat(balances.dust).toFixed(2)}</div>
         <div>MGEM: {parseFloat(balances.gems).toFixed(2)}</div>
+        <div>MDIAMOND: {parseFloat(balances.diamond).toFixed(2)}</div>
       </div>
     </div>
   );

@@ -189,3 +189,10 @@ button:hover {
   margin-top: 12px;
   width: 100%;
 }
+
+.separator {
+  border: 0;
+  height: 1px;
+  background: linear-gradient(90deg, #C084FC, #A056F2);
+  margin: 20px 0;
+}

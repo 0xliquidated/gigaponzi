@@ -2,70 +2,144 @@ import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 
 function Staking({ contracts, provider, account }) {
-  const [stakeAmount, setStakeAmount] = useState('');
-  const [staked, setStaked] = useState('0');
-  const [rewards, setRewards] = useState('0');
+  // MON Staking State
+  const [monStakeAmount, setMonStakeAmount] = useState('');
+  const [monStaked, setMonStaked] = useState('0');
+  const [monRewards, setMonRewards] = useState('0');
+
+  // MDUST Staking State
+  const [dustStakeAmount, setDustStakeAmount] = useState('');
+  const [dustStaked, setDustStaked] = useState('0');
+  const [dustRewards, setDustRewards] = useState('0');
+
+  // MDUST Burning State
+  const [dustBurnAmount, setDustBurnAmount] = useState('');
 
   useEffect(() => {
-    if (contracts.MonStaking) {
-      updateStats();
-      const interval = setInterval(updateStats, 5000); // Update every 5s
+    if (contracts.MonStaking && contracts.DustRewarder) {
+      updateMonStats();
+      updateDustStats();
+      const interval = setInterval(() => {
+        updateMonStats();
+        updateDustStats();
+      }, 5000);
       return () => clearInterval(interval);
     }
   }, [contracts]);
 
-  const updateStats = async () => {
+  const updateMonStats = async () => {
     try {
       const stakedAmount = await contracts.MonStaking.stakedAmount(account);
       const pendingRewards = await contracts.MonStaking.getPendingRewards(account);
-      console.log("Staked:", ethers.utils.formatEther(stakedAmount), "Pending Rewards:", ethers.utils.formatEther(pendingRewards));
-      setStaked(ethers.utils.formatEther(stakedAmount));
-      setRewards(ethers.utils.formatEther(pendingRewards));
+      setMonStaked(ethers.utils.formatEther(stakedAmount));
+      setMonRewards(ethers.utils.formatEther(pendingRewards));
     } catch (error) {
-      console.error("Update stats failed:", error);
+      console.error("MON stats update failed:", error);
     }
   };
 
-  const stake = async () => {
+  const updateDustStats = async () => {
     try {
-      console.log("Staking:", stakeAmount, "MON");
-      const tx = await contracts.MonStaking.stake({
-        value: ethers.utils.parseEther(stakeAmount)
-      });
-      console.log("Stake tx hash:", tx.hash);
+      const stakedAmount = await contracts.DustRewarder.stakedAmount(account);
+      const pendingRewards = await contracts.DustRewarder.getPendingRewards(account);
+      setDustStaked(ethers.utils.formatEther(stakedAmount));
+      setDustRewards(ethers.utils.formatEther(pendingRewards));
+    } catch (error) {
+      console.error("MDUST stats update failed:", error);
+    }
+  };
+
+  // MON Staking Functions
+  const stakeMon = async () => {
+    try {
+      console.log("Staking MON:", monStakeAmount);
+      const tx = await contracts.MonStaking.stake({ value: ethers.utils.parseEther(monStakeAmount) });
+      console.log("MON stake tx hash:", tx.hash);
       await tx.wait();
-      console.log("Stake confirmed");
-      setStakeAmount('');
-      updateStats();
+      setMonStakeAmount('');
+      updateMonStats();
     } catch (error) {
-      console.error("Stake failed:", error);
+      console.error("MON stake failed:", error);
     }
   };
 
-  const withdraw = async () => {
+  const withdrawMon = async () => {
     try {
-      console.log("Withdrawing:", staked, "MON");
-      const tx = await contracts.MonStaking.withdraw(ethers.utils.parseEther(staked));
-      console.log("Withdraw tx hash:", tx.hash);
+      console.log("Withdrawing MON:", monStaked);
+      const tx = await contracts.MonStaking.withdraw(ethers.utils.parseEther(monStaked));
+      console.log("MON withdraw tx hash:", tx.hash);
       await tx.wait();
-      console.log("Withdraw confirmed");
-      updateStats();
+      updateMonStats();
     } catch (error) {
-      console.error("Withdraw failed:", error);
+      console.error("MON withdraw failed:", error);
     }
   };
 
-  const claim = async () => {
+  const claimMonRewards = async () => {
     try {
-      console.log("Claiming rewards...");
+      console.log("Claiming MON rewards...");
       const tx = await contracts.MonStaking.claimRewards();
-      console.log("Claim tx hash:", tx.hash);
+      console.log("MON claim tx hash:", tx.hash);
       await tx.wait();
-      const dustBalance = await contracts.MonDust.balanceOf(account);
-      console.log("MDUST balance after claim:", ethers.utils.formatEther(dustBalance));
-      updateStats();
+      updateMonStats();
     } catch (error) {
-      console.error("Claim failed:", error.message, error);
+      console.error("MON claim failed:", error);
+    }
+  };
+
+  // MDUST Staking Functions
+  const stakeDust = async () => {
+    try {
+      const amount = ethers.utils.parseEther(dustStakeAmount);
+      console.log("Staking MDUST:", dustStakeAmount);
+      await contracts.MonDust.approve(contracts.DustRewarder.address, amount);
+      const tx = await contracts.DustRewarder.stake(amount);
+      console.log("MDUST stake tx hash:", tx.hash);
+      await tx.wait();
+      setDustStakeAmount('');
+      updateDustStats();
+    } catch (error) {
+      console.error("MDUST stake failed:", error);
+    }
+  };
+
+  const unstakeDust = async () => {
+    try {
+      console.log("Unstaking MDUST:", dustStaked);
+      const tx = await contracts.DustRewarder.unstake(ethers.utils.parseEther(dustStaked));
+      console.log("MDUST unstake tx hash:", tx.hash);
+      await tx.wait();
+      updateDustStats();
+    } catch (error) {
+      console.error("MDUST unstake failed:", error);
+    }
+  };
+
+  const claimDustRewards = async () => {
+    try {
+      console.log("Claiming MDUST rewards...");
+      const tx = await contracts.DustRewarder.claimRewards();
+      console.log("MDUST claim tx hash:", tx.hash);
+      await tx.wait();
+      updateDustStats();
+    } catch (error) {
+      console.error("MDUST claim failed:", error);
+    }
+  };
+
+  // MDUST Burning Function
+  const burnDust = async () => {
+    try {
+      const amount = ethers.utils.parseEther(dustBurnAmount);
+      console.log("Burning MDUST:", dustBurnAmount);
+      await contracts.MonDust.approve(contracts.DustRewarder.address, amount);
+      const tx = await contracts.DustRewarder.burnForDiamond(amount);
+      console.log("MDUST burn tx hash:", tx.hash);
+      await tx.wait();
+      setDustBurnAmount('');
+      updateDustStats();
+    } catch (error) {
+      console.error("MDUST burn failed:", error);
     }
   };
 
@@ -73,19 +147,48 @@ function Staking({ contracts, provider, account }) {
     <div className="card">
       <h2>Staking</h2>
       <div className="stats">
-        <p>Staked MON: {parseFloat(staked).toFixed(2)}</p>
-        <p>Pending Rewards: {parseFloat(rewards).toFixed(2)} MDUST</p>
+        <p>Staked MON: {parseFloat(monStaked).toFixed(2)}</p>
+        <p>Pending Rewards: {parseFloat(monRewards).toFixed(2)} MDUST</p>
       </div>
       <input
         type="number"
-        value={stakeAmount}
-        onChange={(e) => setStakeAmount(e.target.value)}
+        value={monStakeAmount}
+        onChange={(e) => setMonStakeAmount(e.target.value)}
         placeholder="Amount in MON"
       />
       <div className="button-group">
-        <button onClick={stake}>Stake</button>
-        <button onClick={withdraw}>Withdraw All</button>
-        <button onClick={claim}>Claim Rewards</button>
+        <button onClick={stakeMon}>Stake</button>
+        <button onClick={withdrawMon}>Withdraw All</button>
+        <button onClick={claimMonRewards}>Claim Rewards</button>
+      </div>
+
+      <hr className="separator" />
+      <h2>Ponziiiiii</h2>
+
+      <div className="stats">
+        <p>Staked MDUST: {parseFloat(dustStaked).toFixed(2)}</p>
+        <p>Pending MGEM Rewards: {parseFloat(dustRewards).toFixed(2)}</p>
+      </div>
+      <input
+        type="number"
+        value={dustStakeAmount}
+        onChange={(e) => setDustStakeAmount(e.target.value)}
+        placeholder="Amount in MDUST"
+      />
+      <div className="button-group">
+        <button onClick={stakeDust}>Stake MDUST</button>
+        <button onClick={unstakeDust}>Unstake All</button>
+        <button onClick={claimDustRewards}>Claim MGEM</button>
+      </div>
+
+      <input
+        type="number"
+        value={dustBurnAmount}
+        onChange={(e) => setDustBurnAmount(e.target.value)}
+        placeholder="MDUST to Burn (min 1B)"
+      />
+      <div className="button-group">
+        <button onClick={burnDust}>Burn for MDIAMOND</button>
       </div>
     </div>
   );
