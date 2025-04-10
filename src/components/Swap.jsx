@@ -33,13 +33,13 @@ function Swap({ contracts, account }) {
   const setDustPercentage = (percentage) => {
     const balance = parseFloat(dustBalance);
     const amount = (balance * percentage) / 100;
-    setDustAmount(amount.toString());
+    setDustAmount(amount.toFixed(2)); // Limit to 2 decimals
   };
 
   const setGemPercentage = (percentage) => {
     const balance = parseFloat(gemBalance);
     const amount = (balance * percentage) / 100;
-    setGemAmount(amount.toString());
+    setGemAmount(amount.toFixed(2)); // Limit to 2 decimals
   };
 
   const approveDust = async (amount) => {

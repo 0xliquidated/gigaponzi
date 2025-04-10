@@ -94,7 +94,7 @@ function Staking({ contracts, provider, account }) {
   const setDustStakePercentage = (percentage) => {
     const balance = parseFloat(dustBalance);
     const amount = (balance * percentage) / 100;
-    setDustStakeAmount(amount.toString());
+    setDustStakeAmount(amount.toFixed(2)); // Limit to 2 decimals
   };
 
   const stakeDust = async () => {
