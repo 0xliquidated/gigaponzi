@@ -196,3 +196,11 @@ button:hover {
   background: linear-gradient(90deg, #C084FC, #A056F2);
   margin: 20px 0;
 }
+
+.instructions {
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  color: #AAAAAA;
+  margin-bottom: 20px;
+}
