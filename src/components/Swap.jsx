@@ -30,6 +30,18 @@ function Swap({ contracts, account }) {
     return allowance.gte(amount);
   };
 
+  const setDustPercentage = (percentage) => {
+    const balance = parseFloat(dustBalance);
+    const amount = (balance * percentage) / 100;
+    setDustAmount(amount.toString());
+  };
+
+  const setGemPercentage = (percentage) => {
+    const balance = parseFloat(gemBalance);
+    const amount = (balance * percentage) / 100;
+    setGemAmount(amount.toString());
+  };
+
   const approveDust = async (amount) => {
     console.log("Approving MDUST:", ethers.utils.formatEther(amount));
     const approveTx = await contracts.MonDust.approve(contracts.SwapHelper.address, amount);
@@ -40,7 +52,7 @@ function Swap({ contracts, account }) {
 
   const swapDustToGems = async (amount) => {
     console.log("Swapping MDUST to MGEM...");
-    const swapTx = await contracts.SwapHelper.swapDustForGems(amount, 0);
+    const swapTx = await contracts.SwapHelper.swapDustForGems(amount, 0, { gasLimit: 300000 });
     console.log("Swap tx hash:", swapTx.hash);
     await swapTx.wait();
     console.log("Swap confirmed");
@@ -76,7 +88,7 @@ function Swap({ contracts, account }) {
 
   const swapGemsToDust = async (amount) => {
     console.log("Swapping MGEM to MDUST...");
-    const swapTx = await contracts.SwapHelper.swapGemsForDust(amount, 0);
+    const swapTx = await contracts.SwapHelper.swapGemsForDust(amount, 0, { gasLimit: 300000 });
     console.log("Swap tx hash:", swapTx.hash);
     await swapTx.wait();
     console.log("Swap confirmed");
@@ -116,6 +128,11 @@ function Swap({ contracts, account }) {
           onChange={(e) => setDustAmount(e.target.value)}
           placeholder="MDUST Amount"
         />
+        <div className="percentage-buttons">
+          <button onClick={() => setDustPercentage(25)}>25%</button>
+          <button onClick={() => setDustPercentage(50)}>50%</button>
+          <button onClick={() => setDustPercentage(100)}>100%</button>
+        </div>
         <button onClick={approveAndSwapDust}>Swap to MGEM</button>
       </div>
       <div className="swap-section">
@@ -125,6 +142,11 @@ function Swap({ contracts, account }) {
           onChange={(e) => setGemAmount(e.target.value)}
           placeholder="MGEM Amount"
         />
+        <div className="percentage-buttons">
+          <button onClick={() => setGemPercentage(25)}>25%</button>
+          <button onClick={() => setGemPercentage(50)}>50%</button>
+          <button onClick={() => setGemPercentage(100)}>100%</button>
+        </div>
         <button onClick={approveAndSwapGems}>Swap to MDUST</button>
       </div>
     </div>
