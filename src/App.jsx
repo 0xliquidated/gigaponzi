@@ -4,6 +4,7 @@ import Header from './components/Header';
 import Staking from './components/Staking';
 import Swap from './components/Swap';
 import Stats from './components/Stats';
+import DiamondStaking from './components/DiamondStaking';
 import { CONTRACTS, NETWORK } from './contracts';
 import './App.css';
 
@@ -71,6 +72,7 @@ function App() {
               <Staking contracts={contracts} provider={provider} account={account} />
               <Swap contracts={contracts} account={account} />
             </div>
+            <DiamondStaking contracts={contracts} account={account} />
           </>
         ) : (
           <div className="welcome">

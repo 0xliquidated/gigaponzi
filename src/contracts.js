@@ -49,6 +49,16 @@ export const CONTRACTS = {
       "function stakedAmount(address) view returns (uint256)",
       "function getPendingRewards(address) view returns (uint256)"
     ]
+  },
+  DiamondRewarder: {
+    address: "0xf72e0cE1872B4137Ccb92F1cf2474205b5Aeb6e1",
+    abi: [
+      "function stake(uint256 amount)",
+      "function unstake(uint256 amount)",
+      "function claimRewards()",
+      "function stakedAmount(address) view returns (uint256)",
+      "function getPendingRewards(address) view returns (uint256)"
+    ]
   }
 };
 

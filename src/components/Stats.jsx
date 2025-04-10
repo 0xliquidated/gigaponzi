@@ -31,7 +31,7 @@ function Stats({ contracts, account }) {
   return (
     <div>
       <div className="instructions">
-        Instructions: For best experience stake 0.00000000001 MON. Stake MON, earn MDUST. Stake MDUST in the Ponziiiii to earn MGEMS. Swap MGEMS for more MDUST. Then Convert 1 billion MDUST to 100 MDIAMONDS.
+        Instructions: For best experience stake 0.00000000001 MON. Stake MON, earn MDUST. Stake MDUST in the Ponziiiii to earn MGEMS. Swap MGEMS for more MDUST. Then Convert 1 billion MDUST to 100 MDIAMONDS. Stake MDiamonds to earn more DUST.
       </div>
       <div className="stats-card">
         <h2>Your Stats</h2>
