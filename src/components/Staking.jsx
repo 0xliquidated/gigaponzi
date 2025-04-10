@@ -127,7 +127,12 @@ function Staking({ contracts, provider, account }) {
     }
   };
 
-  // MDUST Burning Function
+  // MDUST Burning Functions
+  const setBurnAmount = (billions) => {
+    const amount = billions * 1000000000; // Convert billions to token units
+    setDustBurnAmount(amount.toString());
+  };
+
   const burnDust = async () => {
     try {
       const amount = ethers.utils.parseEther(dustBurnAmount);
@@ -187,6 +192,11 @@ function Staking({ contracts, provider, account }) {
         onChange={(e) => setDustBurnAmount(e.target.value)}
         placeholder="MDUST to Burn (min 1B)"
       />
+      <div className="percentage-buttons">
+        <button onClick={() => setBurnAmount(1)}>1B</button>
+        <button onClick={() => setBurnAmount(2)}>2B</button>
+        <button onClick={() => setBurnAmount(3)}>3B</button>
+      </div>
       <div className="button-group">
         <button onClick={burnDust}>Burn for MDIAMOND</button>
       </div>
